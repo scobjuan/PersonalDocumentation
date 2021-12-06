@@ -121,6 +121,10 @@ v-for(actual, arrayCompleto) {
 
 ### Listado de directices 
 
+**V-BIND y/o ":" : **Directrices de tipo atributo.Ej: v-bind:key o :key
+
+**V-ON y/o "@": **Directices de tipo escuchador de eventos.Ej. v-on:click o @click
+
 **v-for: **Recorre un array dentro de la etiqueta que estipulemos
 
 ```html
@@ -165,4 +169,218 @@ v-hide = ocultar
 
 ​	**Nota: **La unica diferencia que podemos encontrar entre v-if/v-else y v-show/v-hide es:
 
-​			El v-if no plasma el bloque html, mientras que el v-show, si lo hace pero agregandole un 			display none
+​			El v-if no plasma el bloque html, mientras que el v-show, si lo hace pero agregandole 			un display none
+
+### Componentes en vuejs
+
+Los componentes son trozos de codigo reutilizables, para dividir el codigo y organizarlo mejor. De tal manera que nos podamos concentrar en cosas especificas, despreocupandonos de otras.
+
+```vue
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendiendo VUEJS</title>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        <!-- Si mostrar == true, el ul se muestra, de lo contrario, no.  -->
+        <button @click="changeVisibility">Mostrar/Ocultar</button>
+        <ul v-if="mostrar">
+            <!-- El v-for se pone aqui, para que se repita cada li(item) del ul(lista) -->
+            <!-- <tvshow v-for="(show, key) in shows" :key="key" :name="show.name" :seasons="show.seasons"></tvshow> -->
+            <tvshowlist></tvshowlist>
+        </ul>
+        <p v-else>No se encontraron datos</p>    
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js" integrity="sha512-njMD8/lt6qrl5S7BFajlL1KztlxeFyLYq/rkt395asAA8dz8uZaNU5VcAxL1DwZul9dmJk+or3HbjafV107ODA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        Vue.component('tvshowlist', {
+            data: function(){
+                return {
+                    shows: [
+                        {name: 'Game of thrones', seasons: 7},
+                        {name: 'Breaking bad', seasons: 5},
+                        {name: 'The walking dead', seasons: 12},
+                        {name: 'The 100', seasons: 7}
+                    ]
+                }
+            },
+            template: `
+                <ul>
+                    <tvshow v-for="(show, key) in shows" :key="key" :name="show.name" :seasons="show.seasons"></tvshow>
+                </ul>
+            `
+        })
+
+        Vue.component('tvshow', {
+            //Los datos(data) en los componentes, son una funcion
+            props: {
+                name: String,
+                seasons: Number,
+            },
+            //Codigo HTML
+            template: `
+                <li>
+                    <strong>{{ name }}</strong> ({{ seasons }} Temporadas)
+                </li>
+            `
+        })
+        const app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hola mundo de Vuejs',
+                mostrar: false,
+            },
+            methods: {
+                changeVisibility: function () {
+                    this.mostrar = !this.mostrar
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+```
+
+En este trozo de codigo estamos utilizando componentes, llamando el componente tvshows, dentro de tvshowlist. Pasandole datos, del componente padre, al hijo por medio de props. Asi:
+
+```vue
+Vue.component('tvshowlist', {
+            data: function(){
+                return {
+                    shows: [
+                        {name: 'Game of thrones', seasons: 7},
+                        {name: 'Breaking bad', seasons: 5},
+                        {name: 'The walking dead', seasons: 12},
+                        {name: 'The 100', seasons: 7}
+                    ]
+                }
+            },
+            template: `
+                <ul>
+                    <tvshow v-for="(show, key) in shows" :key="key" 			  						:name="show.name" :seasons="show.seasons"></tvshow>
+                </ul>
+```
+
+El componente padre tvshowlist, tiene un dato de tipo array llamado shows, este por medio de los props (variables que quiere y/o que necesita recibir para ejecutarse y que fueron definidas en el componente hijo, pues es el, el que sabe que tiene que recibir). Ejecuta un foreach y le pasa los show.name y show.seasons(donde show es la variable que va guardando cada recorrido del foreach)
+
+A tener en cuenta: Los props los definimos aqui, asi:
+
+​	***AQUI MOSTRAMOS COMO PASAR DATOS DE PADRE A HIJO(Props)***
+
+```vue
+Vue.component('tvshow', {
+            //Los datos(data) en los componentes, son una funcion
+            props: {
+                name: String,
+                seasons: Number,
+            },
+            //Codigo HTML
+            template: `
+                <li>
+                    <strong>{{ name }}</strong> ({{ seasons }} Temporadas)
+                </li>
+            `
+        })
+```
+
+​	***AQUI MOSTRAMOS COMO PASAR DATOS DE HIJO A PADRA(Emits)***
+
+```vue
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emits en vuejs</title>
+</head>
+<body>
+    <div id="app">
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js" integrity="sha512-njMD8/lt6qrl5S7BFajlL1KztlxeFyLYq/rkt395asAA8dz8uZaNU5VcAxL1DwZul9dmJk+or3HbjafV107ODA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+
+        Vue.component('todolist', {
+            props: {
+                todos: Array
+            },
+            template: `
+                <div>
+                    <ul>
+                        <todoitem v-for="(todo, key) in todos" :key="key" :todo="todo"></todoitem>
+                    </ul>
+                </div>
+            `
+        })
+
+        Vue.component('todoitem', {
+            props: {
+                todo: Object
+            },
+            template: `
+                <div>
+                    <li>
+                        <strong>{{ todo.title }}</strong>
+                    </li>
+                </div>
+            `
+        })
+
+        Vue.component('todoadd', {
+            data: function() {
+                return {
+                    title: null
+                }
+            },
+            template: `
+                <div>
+                    <input type="text" placeholder="Ingrese el titulo de la tarea" v-model="title"></input>
+                    <button @click="enviarApadre">Añadir tarea</button>    
+                </div>
+            `,
+            methods: {
+                enviarApadre: function(){
+                    this.$emit('muestrame', {title: this.title})
+                    this.title = null
+                }
+            }
+        })
+
+        const app = new Vue({
+            el: '#app',
+            data: {
+                todos:[
+                    { title: 'Tarea1', completed: false },
+                    { title: 'Tarea2', completed: false },
+                    { title: 'Tarea3', completed: false }
+                ],
+                title: null
+            },
+            //La instancia raiz de vue va a tener un template
+            /* "muestrame" es un reemplazo de @click, dentro de la etiqueta de mi 			componente, y este componente lo llamamos donde lo necesitemos.Ej. 
+          Cuando damos click en el boton "añadir tarea", ejecutamos en @click de 		   "todoadd", que fue reemplazado por "muestrame". "Muestrame", le dice 
+          que metodo ejecutar en la instancia de vue, y a el viene amarrado el dato 		  que queremos pasar. Todo se hace a la vez, cuando damos click en el boton 		  de arriba, en realidad estamos ejecutando el metodo "verLoQueTrajo". Los 			 enventos son boleanos son un suitche que se activa cuando ejecutamos una 			accion dentro del dom */
+            template: `
+                <div>
+                    <todolist :todos="todos"></todolist>
+                    <todoadd @muestrame="verLoQueTrajo"></todoadd>
+                </div>
+            `,
+            methods: {
+                verLoQueTrajo: function(title){
+                    this.todos.push(title)
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+```
+
+"Muestrame" es un reemplazo de @click, dentro de la etiqueta de mi componente, y este componente lo llamamos donde lo necesitemos. Ej. Cuando damso click en el boton "añadir tarea", ejecutamos el @click de todoadd(componente hijo), que fue reemplazado por "muestrame". "Muestrame", le dice que metodo ejecutar en la instancia de vue(componente padre, que es donde esta la variable de tipo array, todos, para poder hacerle el push), y a el viene amarrado el dato que queremos pasar. Todo se hace a la vez, cuando damos click en el boton de arriba, en realidad estamos ejecutando el metodo "verLoQueTrajo". Los eventos son un sitche que se activa cuando ejecutamos una accion dentro del DOM 
